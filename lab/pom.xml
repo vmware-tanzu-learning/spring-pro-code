@@ -1,0 +1,215 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.spring.training.core-spring</groupId>
+    <artifactId>parentProject</artifactId>
+    <version>5.3.23</version>
+    <organization>
+        <name>Spring Training</name>
+        <url>https://spring.io/training</url>
+    </organization>
+    <packaging>pom</packaging>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.5</version>
+    </parent>
+    <properties>
+        <!-- Versions of other dependencies not in spring IO. -->
+        <easymock.version>4.3</easymock.version>
+        <hibernate.jmx.version>3.5.6-Final</hibernate.jmx.version>
+        <jamon.version>2.82</jamon.version>
+        <spring-security.version>5.8.0</spring-security.version>
+
+        <java.version>11</java.version>
+
+        <!-- Enable maven support for Servlet 3 - no web.xml -->
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+
+        <!-- Add JAXB that is dropped in JDK 9 -->
+        <jaxb-api.version>2.3.0</jaxb-api.version>
+
+        <!-- Without this, Eclipse will flag an error on pom.xml -->
+        <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
+    </properties>
+    <dependencies>
+        <!--
+        // Although we are not using Spring Boot until Day 3, we do use
+        // SpringApplication which is a Spring Boot class. The starters
+        // are also a convenient way of pulling in the most common
+        // Spring and Testing dependencies.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Needed for Spring's JdbcTemplate -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <!-- Dependencies we may need, and their versions -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Course specific -->
+            <dependency>
+                <groupId>io.spring.training.core-spring</groupId>
+                <artifactId>00-rewards-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.spring.training.core-spring</groupId>
+                <artifactId>01-rewards-db</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- Other -->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-jmx</artifactId>
+                <version>${hibernate.jmx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>${easymock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jamonapi</groupId>
+                <artifactId>jamon</artifactId>
+                <version>${jamon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.maven.plugin}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <build>
+        <!-- Ensure resources are exported correctly - conflict with Spring Boot -->
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <!-- Set Java version -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Set Project Natures -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.10</version>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                    <wtpversion>2.0</wtpversion>
+                    <sourceIncludes>
+                        <sourceInclude>**/*.*</sourceInclude>
+                    </sourceIncludes>
+                    <!-- All of them are listed manually to solve a limitation of the
+                        mvn eclipse plugin (https://issuetracker.springsource.com/browse/STS-2938).
+                        This might cause some issues when migrating to the next version of Eclipse/STS)
+                        also see spring-intro/pom.xml (projectnatures defined explicitely there
+                        as well) -->
+                    <projectnatures>
+                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+                        <projectnature>org.eclipse.jdt.core.javanature</projectnature>
+                        <projectnature>org.eclipse.wst.common.project.facet.core.nature</projectnature>
+                        <projectnature>org.eclipse.wst.common.modulecore.ModuleCoreNature</projectnature>
+                        <projectnature>org.eclipse.jem.workbench.JavaEMFNature</projectnature>
+                    </projectnatures>
+                    <additionalBuildcommands>
+                        <name>org.springframework.ide.eclipse.core.springbuilder</name>
+                    </additionalBuildcommands>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Tests.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <!-- Ensure resources are handled correctly -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <modules>
+        <!--
+          // KEEP IN SYNC WITH SLIDES
+          -->
+        <!-- Section: Shared -->
+        <module>00-rewards-common</module>
+        <module>01-rewards-db</module>
+
+        <!-- Section: Spring Essentials -->
+        <!-- Day 1 -->
+        <module>10-spring-intro</module>
+        <module>10-spring-intro-solution</module>
+        <module>12-javaconfig-dependency-injection</module>
+        <module>12-javaconfig-dependency-injection-solution</module>
+        <module>16-annotations</module>
+        <module>16-annotations-solution</module>
+
+        <!-- Day 2 -->
+        <module>22-aop</module>
+        <module>22-aop-solution</module>
+        <module>24-test</module>
+        <module>24-test-solution</module>
+        <module>26-jdbc</module>
+        <module>26-jdbc-solution</module>
+        <module>28-transactions</module>
+        <module>28-transactions-solution</module>
+
+        <!-- Section: Spring Boot -->
+
+        <!-- Day 3 -->
+        <module>30-jdbc-boot-solution</module>
+        <module>32-jdbc-autoconfig</module>
+        <module>32-jdbc-autoconfig-solution</module>
+        <module>34-spring-data-jpa</module>
+        <module>34-spring-data-jpa-solution</module>
+        <module>36-mvc</module>
+        <module>36-mvc-solution</module>
+        
+        <!-- Day 4 -->
+        <module>38-rest-ws</module>
+        <module>38-rest-ws-solution</module>
+        <module>40-boot-test</module>
+        <module>40-boot-test-solution</module>
+        <module>42-security-rest</module>
+        <module>42-security-rest-solution</module>
+        <module>44-actuator</module>
+        <module>44-actuator-solution</module>
+    </modules>
+</project>
