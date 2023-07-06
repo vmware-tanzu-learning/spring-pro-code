@@ -1,3 +1,4 @@
 dependencies {
     implementation project(':00-rewards-common')
+    testImplementation('com.github.h-thurow:simple-jndi:0.23.0')
 }
